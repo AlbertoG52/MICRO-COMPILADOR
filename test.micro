@@ -1,0 +1,5 @@
+begin 
+    read x;
+    write y;
+    z = x + 123;
+end
