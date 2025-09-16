@@ -4,10 +4,11 @@
 #include <stdio.h>
 #include "tokens.h"
 
-Token getNextToken(FILE *src);
-void readIdentifier(FILE *src, char *lexeme);
-void readNumber(FILE *src, char *lexeme);
-void skipSpacesAndComments(FILE *src);
-void skipComment(FILE *src);
+// Estilo más parecido al libro
+Token Scanner(FILE *src);          // Como getNextToken pero con nombre del libro
+void Advance(FILE *src);           // Como fgetc pero con nombre significativo
+int Peek(FILE *src);               // Como fpeek
+void SkipBlanks(FILE *src);        // Como skipSpacesAndComments
+Token ScanDigits(FILE *src);       // Como readNumber pero para números
 
 #endif

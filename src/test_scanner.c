@@ -4,14 +4,16 @@
 int main() {
     FILE *src = fopen("test.micro", "r");
     if (!src) {
-        perror("Error al abrir el archivo");
+        perror("Error opening file");
         return 1;
     }
 
+    Advance(src); // Inicializar currentChar
     Token t;
+    
     do {
-        t = getNextToken(src);
-        printf("Token: %d, Lexema: '%s'\n", t.type, t.lexeme);
+        t = Scanner(src);
+        printf("Token: %d, Lexeme: '%s'\n", t.type, t.lexeme);
     } while (t.type != T_EOF && t.type != T_ERROR);
 
     fclose(src);

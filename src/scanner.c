@@ -4,114 +4,102 @@
 #include "tokens.h"
 #include "scanner.h"
 
-// Función principal del scanner
-Token getNextToken(FILE *src) {
-    Token t;
-    t.line = 1; // En una versión real, llevarías un contador de líneas
+// Variable global para el carácter actual (estilo libro)
+static int currentChar;
 
-    // Saltar espacios y comentarios
-    skipSpacesAndComments(src);
+void Advance(FILE *src) {
+    currentChar = fgetc(src);
+}
 
-    if (feof(src)) {
-        t.type = T_EOF;
-        strcpy(t.lexeme, "");
-        return t;
-    }
+int Peek(FILE *src) {
+    int c = fgetc(src);
+    ungetc(c, src);
+    return c;
+}
 
-    char c = fgetc(src);
-
-    // Identificadores o palabras reservadas
-    if (isalpha(c)) {
-        ungetc(c, src);
-        readIdentifier(src, t.lexeme);
-        t.type = checkReserved(t.lexeme);
-    }
-    // Números
-    else if (isdigit(c)) {
-        ungetc(c, src);
-        readNumber(src, t.lexeme);
-        t.type = T_NUM;
-    }
-    // Símbolos especiales
-    else {
-        switch (c) {
-            case '=':
-                t.type = T_ASSIGN;
-                strcpy(t.lexeme, "=");
-                break;
-            case '+':
-                t.type = T_PLUS;
-                strcpy(t.lexeme, "+");
-                break;
-            case '-':
-                // Verificar si es comentario
-                if (fpeek(src) == '-') {
-                    skipComment(src);
-                    return getNextToken(src); // Llamada recursiva
-                } else {
-                    t.type = T_MINUS;
-                    strcpy(t.lexeme, "-");
+void SkipBlanks(FILE *src) {
+    while (1) {
+        if (currentChar == ' ' || currentChar == '\t' || currentChar == '\r') {
+            Advance(src);
+        } else if (currentChar == '\n') {
+            Advance(src);
+        } else if (currentChar == '-') {
+            if (Peek(src) == '-') {
+                // Es un comentario
+                while (currentChar != '\n' && currentChar != EOF) {
+                    Advance(src);
                 }
-                break;
-            case ';':
-                t.type = T_SEMICOLON;
-                strcpy(t.lexeme, ";");
-                break;
-            default:
-                t.type = T_ERROR;
-                sprintf(t.lexeme, "Carácter inválido: '%c'", c);
-        }
-    }
-    return t;
-}
-
-// Lee un identificador (letras seguidas de letras/dígitos)
-void readIdentifier(FILE *src, char *lexeme) {
-    int i = 0;
-    char c;
-    while ((c = fgetc(src)) != EOF && (isalnum(c) || c == '_') && i < 32) {
-        lexeme[i++] = c;
-    }
-    lexeme[i] = '\0';
-    if (c != EOF) ungetc(c, src);
-}
-
-// Lee un número (dígitos)
-void readNumber(FILE *src, char *lexeme) {
-    int i = 0;
-    char c;
-    while ((c = fgetc(src)) != EOF && isdigit(c) && i < 32) {
-        lexeme[i++] = c;
-    }
-    lexeme[i] = '\0';
-    if (c != EOF) ungetc(c, src);
-}
-
-// Salta espacios y comentarios
-void skipSpacesAndComments(FILE *src) {
-    int c;
-    while ((c = fgetc(src)) != EOF) {
-        if (c == ' ' || c == '\t' || c == '\r') {
-            continue;
-        } else if (c == '\n') {
-            // Incrementar contador de líneas aquí si lo llevas
-            continue;
-        } else if (c == '-') {
-            if (fpeek(src) == '-') {
-                skipComment(src);
             } else {
-                ungetc(c, src);
                 break;
             }
         } else {
-            ungetc(c, src);
             break;
         }
     }
 }
 
-// Salta un comentario (-- hasta fin de línea)
-void skipComment(FILE *src) {
-    int c;
-    while ((c = fgetc(src)) != EOF && c != '\n');
+Token ScanDigits(FILE *src) {
+    Token tok;
+    int i = 0;
+    
+    while (isdigit(currentChar) && i < 32) {
+        tok.lexeme[i++] = currentChar;
+        Advance(src);
+    }
+    tok.lexeme[i] = '\0';
+    tok.type = T_NUM;
+    return tok;
+}
+
+Token Scanner(FILE *src) {
+    Token ans;
+    ans.line = 1; // Línea actual (simplificado)
+    
+    SkipBlanks(src);
+    
+    if (currentChar == EOF) {
+        ans.type = T_EOF;
+        strcpy(ans.lexeme, "");
+        return ans;
+    }
+    
+    if (isdigit(currentChar)) {
+        return ScanDigits(src);
+    }
+    
+    if (isalpha(currentChar)) {
+        int i = 0;
+        while ((isalnum(currentChar) || currentChar == '_') && i < 32) {
+            ans.lexeme[i++] = currentChar;
+            Advance(src);
+        }
+        ans.lexeme[i] = '\0';
+        ans.type = checkReserved(ans.lexeme);
+        return ans;
+    }
+    
+    // Símbolos individuales
+    switch (currentChar) {
+        case '=':
+            ans.type = T_ASSIGN;
+            strcpy(ans.lexeme, "=");
+            break;
+        case '+':
+            ans.type = T_PLUS;
+            strcpy(ans.lexeme, "+");
+            break;
+        case '-':
+            ans.type = T_MINUS;
+            strcpy(ans.lexeme, "-");
+            break;
+        case ';':
+            ans.type = T_SEMICOLON;
+            strcpy(ans.lexeme, ";");
+            break;
+        default:
+            ans.type = T_ERROR;
+            sprintf(ans.lexeme, "Invalid char: '%c'", currentChar);
+    }
+    Advance(src);
+    return ans;
 }
