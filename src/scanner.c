@@ -54,6 +54,10 @@ Token ScanDigits(FILE *src) {
 Token Scanner(FILE *src) {
     Token ans;
     ans.line = 1; // Línea actual (simplificado)
+
+    if(currentChar == 0) {
+        Advance(src);
+    }
     
     SkipBlanks(src);
     
