@@ -2,6 +2,15 @@
 #include <stdlib.h>
 #include "scanner.h"
 #include "parser.h"
+#include "ast.h"
+#include "semantic.h"
+
+/*Como correr el main en la terminal
+  1. make clean
+  2. make
+  3. ./bin/my_program <archivo.micro>, ejemplo: ./bin/my_program test.micro
+*/
+
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -15,14 +24,26 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // Inicializar el scanner (avanzar al primer carácter)
+    // Inicializar el scanner
     Advance(src);
 
-    // Probar el parser
-    printf("Iniciando análisis sintáctico...\n");
-    parse(src);  // Llama al parser recursivo descendente
-    printf("Análisis sintáctico completado SIN ERRORES.\n");
-
+    printf("🔨 Construyendo AST...\n");
+    ASTNode *ast = parse(src);
+    
+    printf("✅ Análisis sintáctico completado\n");
+    printf("\n🌳 AST:\n");
+    print_ast(ast, 0);
+    
+    // ANÁLISIS SEMÁNTICO
+    printf("\n🔍 Realizando análisis semántico...\n");
+    init_semantic_analysis();
+    semantic_analysis(ast);
+    check_all_initialized();
+    printf("✅ Análisis semántico completado\n");
+    
+    // Generación de código vendría aquí
+    
+    free_ast(ast);
     fclose(src);
     return 0;
 }
