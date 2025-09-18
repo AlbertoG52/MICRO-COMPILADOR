@@ -6,5 +6,6 @@
 // Funciones de análisis semántico
 void semantic_analysis(ASTNode *node);
 void init_semantic_analysis(void);
+void check_all_variables_initialized(void);
 
 #endif

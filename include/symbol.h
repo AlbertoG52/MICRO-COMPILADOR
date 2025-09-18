@@ -14,6 +14,8 @@ typedef struct {
     int count;
 } SymbolTable;
 
+extern SymbolTable symbol_table;
+
 // Funciones públicas
 void init_symbol_table(void);
 int add_symbol(char *name);
