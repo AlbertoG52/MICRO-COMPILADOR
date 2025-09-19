@@ -1,6 +1,9 @@
 begin
     read x;
+    x = 10;
     read y;
+    y = 15;
+    read z; 
     z = x + y;
     write z;
 end

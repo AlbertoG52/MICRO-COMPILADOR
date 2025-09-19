@@ -3,6 +3,7 @@
 
 typedef enum {
     NODE_PROGRAM,
+    NODE_STMT_SEQUENCE,
     NODE_ASSIGN,
     NODE_READ,
     NODE_WRITE,

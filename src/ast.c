@@ -59,6 +59,9 @@ void print_ast(ASTNode *node, int depth) {
     for (int i = 0; i < depth; i++) printf("  ");
     
     switch (node->type) {
+        case NODE_STMT_SEQUENCE:
+            printf('STMT_SEQUENCE\n');
+            break;
         case NODE_PROGRAM:
             printf("PROGRAM\n");
             break;
