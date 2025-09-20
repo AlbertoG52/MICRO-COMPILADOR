@@ -6,5 +6,6 @@
 
 void code_generation(ASTNode *node, FILE *output);
 void generate_program(ASTNode *node, FILE *output);
+void register_variable(char *name);
 
 #endif

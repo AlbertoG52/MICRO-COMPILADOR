@@ -48,12 +48,14 @@ ASTNode* parse(FILE *src) {
     return ast;
 }
 
-ASTNode* program() {  // 
+ASTNode* program() {  
+    printf("DEBUG: Entrando a program()\n");
     if (!match(T_BEGIN)) {  
         error("Expected 'begin'");
     }
     
     ASTNode *statements = stmts();  
+    printf("DEBUG: statements = %p\n", (void*)statements);
     
     if (!match(T_END)) {  
         error("Expected 'end'");
@@ -61,24 +63,33 @@ ASTNode* program() {  //
     
     ASTNode *program_node = create_node(NODE_PROGRAM);
     program_node->left = statements;
+    printf("DEBUG: program_node creado en %p\n", (void*)program_node);
     return program_node;
 }
 
 ASTNode* stmts() {
     // Si no hay más statements (llegamos a END o EOF)
     if (currentToken.type == T_END || currentToken.type == T_EOF) {
-        return NULL;
+        // Crear un nodo de secuencia vacío en lugar de NULL
+        ASTNode *empty = create_node(NODE_STMT_SEQUENCE);
+        return empty;
     }
     
     ASTNode *first_stmt = stmt();
     ASTNode *rest_stmts = stmts();
     
-    // ✅ Crear nodo de SECUENCIA, NO otro PROGRAM
+    // Si el resto de statements está vacío, devolver solo el primero
+    if (rest_stmts != NULL && rest_stmts->type == NODE_STMT_SEQUENCE && 
+        rest_stmts->left == NULL && rest_stmts->right == NULL) {
+        free(rest_stmts); // Liberar el nodo vacío
+        return first_stmt;
+    }
+    
     if (rest_stmts == NULL) {
         return first_stmt; // Solo hay un statement
     }
     
-    // ✅ Usar NODE_STMT_SEQUENCE en lugar de NODE_PROGRAM
+    // Crear nodo de secuencia
     ASTNode *seq_node = create_node(NODE_STMT_SEQUENCE);
     seq_node->left = first_stmt;
     seq_node->right = rest_stmts;

@@ -11,19 +11,24 @@ void semantic_analysis(ASTNode *node) {
     switch (node->type) {
         case NODE_PROGRAM:
             // Analizar todos los statements del programa
-            semantic_analysis(node->left); // Primer statement
-            semantic_analysis(node->right); // Siguientes statements (si hay secuencia)
+            semantic_analysis(node->left);
+            break;
+            
+        case NODE_STMT_SEQUENCE:
+            // Analizar statements en secuencia
+            semantic_analysis(node->left);
+            semantic_analysis(node->right);
             break;
             
         case NODE_ASSIGN:
             // ASIGNACIÓN: x = expr;
-            // 1. Verificar que la expresión es válida
+            // 1. Primero analizar la expresión (puede contener variables no declaradas)
             semantic_analysis(node->right);
             
-            // 2. Verificar que la variable existe (debe haber sido declarada con read)
+            // 2. ✅ NUEVO: Si la variable no existe, declararla implícitamente
             if (find_symbol(node->left->value) == -1) {
-                fprintf(stderr, "Error semántico: Variable '%s' no declarada (use read primero)\n", node->left->value);
-                exit(EXIT_FAILURE);
+                add_sysmbol(node->left->value);
+                printf("✓ Variable '%s' declarada implícitamente por asignación\n", node->left->value);
             }
             
             // 3. Marcar como inicializada
@@ -33,8 +38,9 @@ void semantic_analysis(ASTNode *node) {
             
         case NODE_READ:
             // READ: read x;
-            // 1. Agregar variable a la tabla (declaración implícita)
-            if (add_symbol(node->left->value)) {
+            // 1. ✅ Si la variable no existe, declararla
+            if (find_symbol(node->left->value) == -1) {
+                add_symbol(node->left->value);
                 printf("✓ Variable '%s' declarada por read\n", node->left->value);
             }
             
@@ -45,29 +51,32 @@ void semantic_analysis(ASTNode *node) {
         case NODE_WRITE:
             // WRITE: write expr;
             semantic_analysis(node->left);
+            
+            // ✅ Verificar que la expresión esté inicializada si es variable
+            if (node->left->type == NODE_VAR && !is_initialized(node->left->value)) {
+                fprintf(stderr, "Error semántico: Variable '%s' no inicializada\n", node->left->value);
+                exit(EXIT_FAILURE);
+            }
             printf("✓ Write válido\n");
             break;
             
         case NODE_ADD:
         case NODE_SUB:
-            // Operaciones binarias: expr + expr
+            // Operaciones binarias
             semantic_analysis(node->left);
             semantic_analysis(node->right);
             break;
-            
+
         case NODE_VAR:
-            // USO de variable: x (en expresión)
-            if (find_symbol(node->value) == -1) {
-                fprintf(stderr, "Error semántico: Variable '%s' no declarada\n", node->value);
-                exit(EXIT_FAILURE);
+            // USO de variable en expresión
+            if (find_symbol(node->value) == -1){
+                // Declarar implícitamente pero NO marcar como inicializada
+                add_symbol(node->value);
+                printf("✓ Variable '%s' declarada implícitamente por uso\n", node->value);
+                // NO llamar a mark_initialized aquí - se marcará cuando se asigne
             }
-            if (!is_initialized(node->value)) {
-                fprintf(stderr, "Error semántico: Variable '%s' no inicializada\n", node->value);
-                exit(EXIT_FAILURE);
-            }
-            printf("✓ Uso válido de variable '%s'\n", node->value);
             break;
-            
+
         case NODE_NUM:
             // Número literal - siempre válido
             break;
@@ -81,15 +90,4 @@ void semantic_analysis(ASTNode *node) {
 
 void init_semantic_analysis(void) {
     init_symbol_table();
-}
-
-void check_all_variables_initialized(void) {
-    // Esta función verifica al final del análisis si hay variables no inicializadas
-    // (ejercicio 10 - aunque read siempre inicializa, por si acaso)
-    for (int i = 0; i < symbol_table.count; i++) {
-        if (!symbol_table.symbols[i].initialized) {
-            fprintf(stderr, "Warning: Variable '%s' declarada pero no inicializada\n", 
-                    symbol_table.symbols[i].name);
-        }
-    }
 }

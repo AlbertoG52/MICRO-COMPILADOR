@@ -1,11 +1,37 @@
+#include "parser.h"
+#include "semantic.h"
+#include "codegen.h"       // ✅ Añade este include
+#include "ast.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "parser.h"
-#include "semantic.h"
-#include "codegen.h"
-#include "ast.h"
+
+// ✅ Declaraciones de funciones de codegen.h que necesitas
+void register_variable(char *name);
+void generate_program_header(FILE *output);
+
+// ✅ Función para registrar variables del AST
+void register_variables_from_ast(ASTNode *node) {
+    if (!node) return;
+    
+    switch (node->type) {
+        case NODE_ASSIGN:
+            register_variable(node->left->value);
+            register_variables_from_ast(node->right);
+            break;
+        case NODE_READ:
+            register_variable(node->left->value);
+            break;
+        case NODE_VAR:
+            register_variable(node->value);
+            break;
+        default:
+            register_variables_from_ast(node->left);
+            register_variables_from_ast(node->right);
+            break;
+    }
+}
 
 // Función para ejecutar comandos con verificación de errores
 int execute_command(const char *command) {
@@ -53,18 +79,32 @@ int main(int argc, char *argv[]) {
 
     // 4. GENERACIÓN DE CÓDIGO
     printf("=== Generación de Código ===\n");
-    char asm_filename[256];
+    char asm_filename[256];  // ✅ Declarada UNA vez
     snprintf(asm_filename, sizeof(asm_filename), "%s.asm", argv[1]);
     
-    FILE *output = fopen(asm_filename, "w");
+    FILE *output = fopen(asm_filename, "w");  // ✅ Declarada UNA vez
     if (!output) {
         perror("Error creando archivo assembly");
         free_ast(ast);
         return 1;
     }
     
-    generate_program(ast, output);
-    code_generation(ast, output);
+    // ✅ Registrar variables ANTES de generar encabezado
+    register_variables_from_ast(ast);
+    
+    // ✅ Generar encabezado UNA vez
+    generate_program_header(output);
+    
+    // ✅ Generar código de los statements
+    if (ast != NULL && ast->left != NULL) {
+        code_generation(ast->left, output);
+    }
+    
+// ✅ Finalizar programa correctamente
+    fprintf(output, "\n    pop rbp         ; Restaurar stack\n");
+    fprintf(output, "    mov eax, 0\n");
+    fprintf(output, "    ret\n");
+
     fclose(output);
     printf("✓ Archivo assembly generado: %s\n", asm_filename);
 
@@ -117,7 +157,8 @@ int main(int argc, char *argv[]) {
     
     // 7. LIMPIAR (opcional)
     snprintf(command, sizeof(command), "rm %s.o", argv[1]);
-    system(command); // Este puede fallar sin problema
+    int cleanup_result = system(command);  // ✅ Capturar resultado para evitar warning
+    (void)cleanup_result;  // ✅ Silenciar warning de unused variable
     
     free_ast(ast);
     return 0;

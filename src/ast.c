@@ -53,14 +53,19 @@ ASTNode* create_num_node(char *num) {
 }
 
 void print_ast(ASTNode *node, int depth) {
-    if (node == NULL) return;
+    if (node == NULL) {
+        // Sangría para mostrar la profundidad
+        for (int i = 0; i < depth; i++) printf("  ");
+        printf("NULL\n");
+        return;
+    }
     
     // Sangría para mostrar la profundidad
     for (int i = 0; i < depth; i++) printf("  ");
     
     switch (node->type) {
         case NODE_STMT_SEQUENCE:
-            printf('STMT_SEQUENCE\n');
+            printf("STMT_SEQUENCE\n");
             break;
         case NODE_PROGRAM:
             printf("PROGRAM\n");
@@ -86,10 +91,16 @@ void print_ast(ASTNode *node, int depth) {
         case NODE_NUM:
             printf("NUM: %s\n", node->value);
             return; // No tiene hijos
+        default:
+            printf("UNKNOWN_NODE(%d)\n", node->type);
+            return;
     }
     
-    print_ast(node->left, depth + 1);
-    print_ast(node->right, depth + 1);
+    // Solo imprimir hijos si existen
+    if (node->left != NULL || node->right != NULL) {
+        print_ast(node->left, depth + 1);
+        print_ast(node->right, depth + 1);
+    }
 }
 
 void free_ast(ASTNode *node) {
