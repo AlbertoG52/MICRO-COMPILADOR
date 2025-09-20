@@ -19,12 +19,20 @@ main:
     xor eax, eax
     call scanf
     mov eax, 10
+    push rax
+    mov eax, [x]
+    pop rbx
+    add eax, ebx
     mov [x], eax
     mov rdi, format_int
     lea rsi, [y]
     xor eax, eax
     call scanf
     mov eax, 15
+    push rax
+    mov eax, [y]
+    pop rbx
+    add eax, ebx
     mov [y], eax
     mov eax, [x]
     push rax

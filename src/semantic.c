@@ -27,7 +27,7 @@ void semantic_analysis(ASTNode *node) {
             
             // 2. ✅ NUEVO: Si la variable no existe, declararla implícitamente
             if (find_symbol(node->left->value) == -1) {
-                add_sysmbol(node->left->value);
+                add_symbol(node->left->value);
                 printf("✓ Variable '%s' declarada implícitamente por asignación\n", node->left->value);
             }
             
