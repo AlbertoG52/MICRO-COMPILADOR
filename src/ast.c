@@ -14,20 +14,20 @@ ASTNode* create_node(NodeType type) {
 
 ASTNode* create_assign_node(char *id, ASTNode *expr) {
     ASTNode *node = create_node(NODE_ASSIGN);
-    node->left = create_var_node(id); // left child es la variable
-    node->right = expr;               // right child es la expresión
+    node->left = create_var_node(id); 
+    node->right = expr;               
     return node;
 }
 
 ASTNode* create_read_node(char *id) {
     ASTNode *node = create_node(NODE_READ);
-    node->left = create_var_node(id); // left child es la variable a leer
+    node->left = create_var_node(id); 
     return node;
 }
 
 ASTNode* create_write_node(ASTNode *expr) {
     ASTNode *node = create_node(NODE_WRITE);
-    node->left = expr; // left child es la expresión a escribir
+    node->left = expr; 
     return node;
 }
 
@@ -54,13 +54,13 @@ ASTNode* create_num_node(char *num) {
 
 void print_ast(ASTNode *node, int depth) {
     if (node == NULL) {
-        // Sangría para mostrar la profundidad
+        
         for (int i = 0; i < depth; i++) printf("  ");
         printf("NULL\n");
         return;
     }
     
-    // Sangría para mostrar la profundidad
+    
     for (int i = 0; i < depth; i++) printf("  ");
     
     switch (node->type) {
@@ -87,10 +87,10 @@ void print_ast(ASTNode *node, int depth) {
             break;
         case NODE_VAR:
             printf("VAR: %s\n", node->value);
-            return; // No tiene hijos
+            return; 
         case NODE_NUM:
             printf("NUM: %s\n", node->value);
-            return; // No tiene hijos
+            return; 
         default:
             printf("UNKNOWN_NODE(%d)\n", node->type);
             return;

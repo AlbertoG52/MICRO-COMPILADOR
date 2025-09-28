@@ -17,10 +17,10 @@ typedef struct ASTNode {
     NodeType type;
     struct ASTNode *left;
     struct ASTNode *right;
-    char value[33]; // Para ID names o valores numéricos
+    char value[33]; 
 } ASTNode;
 
-// Funciones para crear nodos
+
 ASTNode* create_node(NodeType type);
 ASTNode* create_assign_node(char *id, ASTNode *expr);
 ASTNode* create_read_node(char *id);
@@ -29,7 +29,7 @@ ASTNode* create_bin_op_node(NodeType op, ASTNode *left, ASTNode *right);
 ASTNode* create_var_node(char *id);
 ASTNode* create_num_node(char *num);
 
-// Funciones de utilidad
+
 void print_ast(ASTNode *node, int depth);
 void free_ast(ASTNode *node);
 

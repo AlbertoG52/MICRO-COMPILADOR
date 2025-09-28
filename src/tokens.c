@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <string.h>
 
-// Tabla de palabras reservadas
+
 ReservedWord reserved_words[] = {
     {"begin", T_BEGIN},
     {"end",   T_END},
@@ -12,24 +12,24 @@ ReservedWord reserved_words[] = {
     {NULL,    T_ERROR}
 };
 
-// Función para verificar si una cadena es palabra reservada
+
 TokenType checkReserved(char *word) {
     for (int i = 0; reserved_words[i].word != NULL; i++) {
         if (strcmp(word, reserved_words[i].word) == 0) {
             return reserved_words[i].token;
         }
     }
-    return T_ID; // No es reservada, es un identificador normal
+    return T_ID; 
 }
 
-// Función para mirar el próximo carácter sin consumirlo
+
 int fpeek(FILE *src) {
     int c = fgetc(src);
     ungetc(c, src);
     return c;
 }
 
-// Salta espacios en blanco
+
 void skipSpaces(FILE *src) {
     int c;
     while ((c = fgetc(src)) != EOF) {
@@ -42,7 +42,7 @@ void skipSpaces(FILE *src) {
     }
 }
 
-// Salta comentarios (-- hasta el fin de línea)
+
 void skipComments(FILE *src) {
     int c;
     while ((c = fgetc(src)) != EOF) {

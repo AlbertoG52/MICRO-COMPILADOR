@@ -20,15 +20,6 @@ int match(TokenType expected_type) {
         currentToken = getNextToken(source);
         return 1;
     }
-    /*Este else por si hay un error pero es un despiche innecesario asi que lo dejo comentado*/
-    /*else {
-        char error_msg[100];
-        snprintf(error_msg, 100, "Expected %s but got %s", 
-                 token_type_to_str(expected_type), 
-                 token_type_to_str(currentToken.type));
-        error(error_msg);
-        return 0;
-    }*/
 }
 
 void error(const char *msg) {
@@ -68,9 +59,7 @@ ASTNode* program() {
 }
 
 ASTNode* stmts() {
-    // Si no hay más statements (llegamos a END o EOF)
     if (currentToken.type == T_END || currentToken.type == T_EOF) {
-        // Crear un nodo de secuencia vacío en lugar de NULL
         ASTNode *empty = create_node(NODE_STMT_SEQUENCE);
         return empty;
     }
@@ -78,18 +67,16 @@ ASTNode* stmts() {
     ASTNode *first_stmt = stmt();
     ASTNode *rest_stmts = stmts();
     
-    // Si el resto de statements está vacío, devolver solo el primero
     if (rest_stmts != NULL && rest_stmts->type == NODE_STMT_SEQUENCE && 
         rest_stmts->left == NULL && rest_stmts->right == NULL) {
-        free(rest_stmts); // Liberar el nodo vacío
+        free(rest_stmts); 
         return first_stmt;
     }
     
     if (rest_stmts == NULL) {
-        return first_stmt; // Solo hay un statement
+        return first_stmt; 
     }
     
-    // Crear nodo de secuencia
     ASTNode *seq_node = create_node(NODE_STMT_SEQUENCE);
     seq_node->left = first_stmt;
     seq_node->right = rest_stmts;
@@ -98,7 +85,6 @@ ASTNode* stmts() {
 
 ASTNode* stmt() {
     if (peek(T_ID)) {
-        // Asignación: ID = Expr;
         char id[33];
         strcpy(id, currentToken.lexeme);
         match(T_ID);
@@ -108,7 +94,6 @@ ASTNode* stmt() {
         return create_assign_node(id, expr_node);
     } 
     else if (peek(T_READ)) {
-        // read ID;
         match(T_READ);
         char id[33];
         strcpy(id, currentToken.lexeme);
@@ -117,7 +102,6 @@ ASTNode* stmt() {
         return create_read_node(id);
     }
     else if (peek(T_WRITE)) {
-        // write Expr;
         match(T_WRITE);
         ASTNode *expr_node = expr();
         match(T_SEMICOLON);
@@ -147,7 +131,7 @@ ASTNode* expr_prime(ASTNode *left) {
         ASTNode *sub_node = create_bin_op_node(NODE_SUB, left, right_term);
         return expr_prime(sub_node);
     }
-    return left; // λ production - return what we have
+    return left; 
 }
 
 ASTNode* term() {

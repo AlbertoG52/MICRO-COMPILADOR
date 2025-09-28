@@ -4,7 +4,6 @@
 #include "tokens.h"
 #include "scanner.h"
 
-// Variable global para el carácter actual (estilo libro)
 static int currentChar;
 
 void Advance(FILE *src) {
@@ -25,7 +24,6 @@ void SkipBlanks(FILE *src) {
             Advance(src);
         } else if (currentChar == '-') {
             if (Peek(src) == '-') {
-                // Es un comentario
                 while (currentChar != '\n' && currentChar != EOF) {
                     Advance(src);
                 }
@@ -53,7 +51,7 @@ Token ScanDigits(FILE *src) {
 
 Token Scanner(FILE *src) {
     Token ans;
-    ans.line = 1; // Línea actual (simplificado)
+    ans.line = 1; 
 
     if(currentChar == 0) {
         Advance(src);
@@ -82,7 +80,6 @@ Token Scanner(FILE *src) {
         return ans;
     }
     
-    // Símbolos individuales
     switch (currentChar) {
         case '=':
             ans.type = T_ASSIGN;

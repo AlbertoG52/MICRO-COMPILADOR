@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 
-// Variable global de la tabla de símbolos
+
 SymbolTable symbol_table;
 
 void init_symbol_table(void) {
@@ -10,14 +10,14 @@ void init_symbol_table(void) {
 }
 
 int add_symbol(char *name) {
-    // Verificar si ya existe
+
     for (int i = 0; i < symbol_table.count; i++) {
         if (strcmp(symbol_table.symbols[i].name, name) == 0) {
-            return 0; // Ya existe
+            return 0; 
         }
     }
     
-    // Agregar nueva variable
+
     if (symbol_table.count < MAX_SYMBOLS) {
         strncpy(symbol_table.symbols[symbol_table.count].name, name, MAX_ID_LENGTH);
         symbol_table.symbols[symbol_table.count].initialized = 0;
@@ -35,7 +35,7 @@ int find_symbol(char *name) {
             return i;
         }
     }
-    return -1; // No encontrado
+    return -1; 
 }
 
 void mark_initialized(char *name) {

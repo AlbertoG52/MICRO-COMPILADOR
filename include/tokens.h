@@ -31,16 +31,16 @@ typedef struct {
     int line;
 } Token;
 
-// Tabla de palabras reservadas
+
 typedef struct {
     char *word;
     TokenType token;
 } ReservedWord;
 
-// Declaración de la tabla de palabras reservadas
+
 extern ReservedWord reserved_words[];
 
-// Prototipos de funciones del scanner
+
 Token getNextToken(FILE *src);
 void skipComments(FILE *src);
 void skipSpaces(FILE *src);

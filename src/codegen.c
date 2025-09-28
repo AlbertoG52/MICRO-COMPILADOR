@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Tabla de variables dinámica
+
 typedef struct {
     char name[33];
     int used;
@@ -18,7 +18,7 @@ typedef struct {
 static Variable variables[100];
 static int var_count = 0;
 
-// Registrar variable si no existe
+
 void register_variable(char *name) {
     for (int i = 0; i < var_count; i++) {
         if (strcmp(variables[i].name, name) == 0) {
@@ -34,7 +34,7 @@ void register_variable(char *name) {
     }
 }
 
-// Generar encabezado con variables dinámicas
+
 void generate_program_header(FILE *output) {
     fprintf(output, "section .data\n");
     fprintf(output, "    format_int db '%%d', 0\n\n");
@@ -88,7 +88,7 @@ void code_generation(ASTNode *node, FILE *output){
             return;
         }
 
-        // ✅ Solo generar la expresión si NO es una constante inmediata después de read
+        
         code_generation(node->right, output);
         fprintf(output, "    mov [%s], eax\n", node->left->value);
         break;
@@ -101,7 +101,7 @@ void code_generation(ASTNode *node, FILE *output){
         register_variable(node->left->value);
         fprintf(output, "    mov rdi, format_int\n");
         fprintf(output, "    lea rsi, [%s]\n", node->left->value);
-        fprintf(output, "    xor eax, eax\n"); // ✅ AL=0 para scanf varargs
+        fprintf(output, "    xor eax, eax\n"); 
         fprintf(output, "    call scanf\n");
         break;
 
@@ -113,7 +113,7 @@ void code_generation(ASTNode *node, FILE *output){
         code_generation(node->left, output);
         fprintf(output, "    mov rdi, format_int_newline\n\n");
         fprintf(output, "    mov esi, eax\n");
-        fprintf(output, "    xor eax, eax\n"); // ✅ AL=0 para printf varargs
+        fprintf(output, "    xor eax, eax\n"); 
         fprintf(output, "    call printf\n");
         break;
     case NODE_ADD:
@@ -147,7 +147,7 @@ void code_generation(ASTNode *node, FILE *output){
             fprintf(stderr, "ERROR: VAR sin nombre\n");
             return;
         }
-        // Registrar variable usada
+        
         register_variable(node->value);
         fprintf(output, "    mov eax, [%s]\n", node->value);
         break;

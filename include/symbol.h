@@ -6,7 +6,7 @@
 
 typedef struct {
     char name[MAX_ID_LENGTH];
-    int initialized; // 0 = no inicializada, 1 = inicializada
+    int initialized; 
 } SymbolEntry;
 
 typedef struct {
@@ -16,7 +16,7 @@ typedef struct {
 
 extern SymbolTable symbol_table;
 
-// Funciones públicas
+
 void init_symbol_table(void);
 int add_symbol(char *name);
 int find_symbol(char *name);
