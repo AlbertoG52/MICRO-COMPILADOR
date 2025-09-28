@@ -1,5 +1,0 @@
-begin
-    read x;
-    y = x + z;  -- z NO declarada
-    write y;
-end

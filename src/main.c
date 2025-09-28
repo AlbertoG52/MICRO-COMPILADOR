@@ -1,17 +1,17 @@
 #include "parser.h"
 #include "semantic.h"
-#include "codegen.h"       // ✅ Añade este include
+#include "codegen.h"
 #include "ast.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-// ✅ Declaraciones de funciones de codegen.h que necesitas
+// Declaraciones de funciones de codegen.h
 void register_variable(char *name);
 void generate_program_header(FILE *output);
 
-// ✅ Función para registrar variables del AST
+// Función para registrar variables del AST
 void register_variables_from_ast(ASTNode *node) {
     if (!node) return;
     
@@ -33,7 +33,7 @@ void register_variables_from_ast(ASTNode *node) {
     }
 }
 
-// Función para ejecutar comandos con verificación de errores
+// Función para ejecutar comandos con verificación
 int execute_command(const char *command) {
     printf("Ejecutando: %s\n", command);
     int result = system(command);
@@ -49,6 +49,15 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Uso: %s <archivo.micro>\n", argv[0]);
         return 1;
     }
+
+    // Extraer el nombre base sin extensión
+    char base_name[256];
+    strncpy(base_name, argv[1], sizeof(base_name) - 1);
+    base_name[sizeof(base_name) - 1] = '\0';
+    
+    // Eliminar la extensión si existe
+    char *dot = strrchr(base_name, '.');
+    if (dot) *dot = '\0';
 
     // 1. ANÁLISIS SINTÁCTICO
     printf("=== Análisis Sintáctico ===\n");
@@ -79,28 +88,28 @@ int main(int argc, char *argv[]) {
 
     // 4. GENERACIÓN DE CÓDIGO
     printf("=== Generación de Código ===\n");
-    char asm_filename[256];  // ✅ Declarada UNA vez
-    snprintf(asm_filename, sizeof(asm_filename), "%s.asm", argv[1]);
+    char asm_filename[256];
+    snprintf(asm_filename, sizeof(asm_filename), "%s.asm", base_name);
     
-    FILE *output = fopen(asm_filename, "w");  // ✅ Declarada UNA vez
+    FILE *output = fopen(asm_filename, "w");
     if (!output) {
         perror("Error creando archivo assembly");
         free_ast(ast);
         return 1;
     }
     
-    // ✅ Registrar variables ANTES de generar encabezado
+    // Registrar variables ANTES de generar encabezado
     register_variables_from_ast(ast);
     
-    // ✅ Generar encabezado UNA vez
+    // Generar encabezado UNA vez
     generate_program_header(output);
     
-    // ✅ Generar código de los statements
+    // Generar código de los statements
     if (ast != NULL && ast->left != NULL) {
         code_generation(ast->left, output);
     }
     
-// ✅ Finalizar programa correctamente
+    // Finalizar programa correctamente
     fprintf(output, "\n    pop rbp         ; Restaurar stack\n");
     fprintf(output, "    mov eax, 0\n");
     fprintf(output, "    ret\n");
@@ -133,32 +142,32 @@ int main(int argc, char *argv[]) {
     char command[512];
     
     // Ensamblar
-    snprintf(command, sizeof(command), "nasm -f elf64 %s.asm -o %s.o", argv[1], argv[1]);
+    snprintf(command, sizeof(command), "nasm -f elf64 %s.asm -o %s.o", base_name, base_name);
     if (execute_command(command) != 0) {
         free_ast(ast);
         return 1;
     }
     
-    // Linkear
-    snprintf(command, sizeof(command), "gcc -no-pie %s.o -o %s", argv[1], argv[1]);
+    // Linkear - ¡USAR base_name SIN EXTENSIÓN para el ejecutable!
+    snprintf(command, sizeof(command), "gcc -no-pie %s.o -o %s", base_name, base_name);
     if (execute_command(command) != 0) {
         free_ast(ast);
         return 1;
     }
     
     // Verificar que el ejecutable existe
-    if (access(argv[1], F_OK) != 0) {
+    if (access(base_name, F_OK) != 0) {
         fprintf(stderr, "ERROR: Ejecutable final no se creó\n");
         free_ast(ast);
         return 1;
     }
     
-    printf("✓ Programa compilado exitosamente: %s\n", argv[1]);
+    printf("✓ Programa compilado exitosamente: %s\n", base_name);
     
-    // 7. LIMPIAR (opcional)
-    snprintf(command, sizeof(command), "rm %s.o", argv[1]);
-    int cleanup_result = system(command);  // ✅ Capturar resultado para evitar warning
-    (void)cleanup_result;  // ✅ Silenciar warning de unused variable
+    // 7. LIMPIAR archivo objeto (opcional)
+    snprintf(command, sizeof(command), "rm %s.o", base_name);
+    int cleanup_result = system(command);
+    (void)cleanup_result;  // Silenciar warning de unused variable
     
     free_ast(ast);
     return 0;

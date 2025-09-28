@@ -38,6 +38,7 @@ void register_variable(char *name) {
 void generate_program_header(FILE *output) {
     fprintf(output, "section .data\n");
     fprintf(output, "    format_int db '%%d', 0\n\n");
+    fprintf(output, "    format_int_newline db '%%d', 10, 0\n\n");
     
     fprintf(output, "section .bss\n");
     for (int i = 0; i < var_count; i++) {
@@ -51,7 +52,7 @@ void generate_program_header(FILE *output) {
     fprintf(output, "    global main\n");
     fprintf(output, "    extern scanf, printf\n\n");
     fprintf(output, "main:\n");
-    fprintf(output, "    push rbp        ; Alinear stack a 16-bytes\n");
+    fprintf(output, "    push rbp\n");
     fprintf(output, "    mov rbp, rsp\n\n");
 }
 
@@ -110,7 +111,7 @@ void code_generation(ASTNode *node, FILE *output){
             return;
         }
         code_generation(node->left, output);
-        fprintf(output, "    mov rdi, format_int\n");
+        fprintf(output, "    mov rdi, format_int_newline\n\n");
         fprintf(output, "    mov esi, eax\n");
         fprintf(output, "    xor eax, eax\n"); // ✅ AL=0 para printf varargs
         fprintf(output, "    call printf\n");

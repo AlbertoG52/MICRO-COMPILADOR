@@ -1,6 +1,8 @@
 section .data
     format_int db '%d', 0
 
+    format_int_newline db '%d', 10, 0
+
 section .bss
     x resd 1
     y resd 1
@@ -11,37 +13,22 @@ section .text
     extern scanf, printf
 
 main:
-    push rbp        ; Alinear stack a 16-bytes
+    push rbp
     mov rbp, rsp
 
     mov rdi, format_int
     lea rsi, [x]
     xor eax, eax
     call scanf
-    mov eax, 10
-    push rax
     mov eax, [x]
-    pop rbx
-    add eax, ebx
-    mov [x], eax
-    mov rdi, format_int
-    lea rsi, [y]
-    xor eax, eax
-    call scanf
-    mov eax, 15
     push rax
-    mov eax, [y]
+    mov eax, [z]
     pop rbx
     add eax, ebx
     mov [y], eax
-    mov eax, [x]
-    push rax
     mov eax, [y]
-    pop rbx
-    add eax, ebx
-    mov [z], eax
-    mov eax, [z]
-    mov rdi, format_int
+    mov rdi, format_int_newline
+
     mov esi, eax
     xor eax, eax
     call printf

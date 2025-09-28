@@ -1,5 +1,7 @@
-begin 
-    read x;
-    write y;
-    z = x + 123;
+begin
+--comentario para estorbar
+    x = 8; -- otro comentario para estorbar
+    y = 6;
+    z = x + y;
+    write z;
 end
