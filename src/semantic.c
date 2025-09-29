@@ -23,17 +23,14 @@ void semantic_analysis(ASTNode *node) {
             
             if (find_symbol(node->left->value) == -1) {
                 add_symbol(node->left->value);
-                printf("✓ Variable '%s' declarada implícitamente por asignación\n", node->left->value);
             }
             
             mark_initialized(node->left->value);
-            printf("✓ Asignación válida a variable '%s'\n", node->left->value);
             break;
             
         case NODE_READ:
             if (find_symbol(node->left->value) == -1) {
                 add_symbol(node->left->value);
-                printf("✓ Variable '%s' declarada por read\n", node->left->value);
             }
             
             mark_initialized(node->left->value);
@@ -46,7 +43,6 @@ void semantic_analysis(ASTNode *node) {
                 fprintf(stderr, "Error semántico: Variable '%s' no inicializada\n", node->left->value);
                 exit(EXIT_FAILURE);
             }
-            printf("✓ Write válido\n");
             break;
             
         case NODE_ADD:
@@ -58,7 +54,6 @@ void semantic_analysis(ASTNode *node) {
         case NODE_VAR:
             if (find_symbol(node->value) == -1){
                 add_symbol(node->value);
-                printf("✓ Variable '%s' declarada implícitamente por uso\n", node->value);
             }
             break;
 

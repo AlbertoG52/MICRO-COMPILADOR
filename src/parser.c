@@ -40,13 +40,11 @@ ASTNode* parse(FILE *src) {
 }
 
 ASTNode* program() {  
-    printf("DEBUG: Entrando a program()\n");
     if (!match(T_BEGIN)) {  
         error("Expected 'begin'");
     }
     
     ASTNode *statements = stmts();  
-    printf("DEBUG: statements = %p\n", (void*)statements);
     
     if (!match(T_END)) {  
         error("Expected 'end'");
@@ -54,7 +52,6 @@ ASTNode* program() {
     
     ASTNode *program_node = create_node(NODE_PROGRAM);
     program_node->left = statements;
-    printf("DEBUG: program_node creado en %p\n", (void*)program_node);
     return program_node;
 }
 

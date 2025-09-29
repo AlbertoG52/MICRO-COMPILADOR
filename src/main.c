@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
     if (dot) *dot = '\0';
 
    
-    printf("=== Análisis Sintáctico ===\n");
+   
     FILE *source = fopen(argv[1], "r");
     if (!source) {
         perror("Error abriendo archivo fuente");
@@ -76,18 +76,13 @@ int main(int argc, char *argv[]) {
     }
     
    
-    printf("\n=== AST Generado ===\n");
-    print_ast(ast, 0);
-    printf("\n");
 
     
-    printf("=== Análisis Semántico ===\n");
+
     init_semantic_analysis();
     semantic_analysis(ast);
-    printf("✓ Análisis semántico completado sin errores\n\n");
 
-   
-    printf("=== Generación de Código ===\n");
+
     char asm_filename[256];
     snprintf(asm_filename, sizeof(asm_filename), "%s.asm", base_name);
     
@@ -115,7 +110,7 @@ int main(int argc, char *argv[]) {
     fprintf(output, "    ret\n");
 
     fclose(output);
-    printf("✓ Archivo assembly generado: %s\n", asm_filename);
+    printf("Archivo assembly generado: %s\n", asm_filename);
 
     
     if (access(asm_filename, F_OK) != 0) {
@@ -135,10 +130,9 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
-    printf("✓ Tamaño del archivo .asm: %ld bytes\n", file_size);
 
     
-    printf("\n=== Ensamblado y Linkeo ===\n");
+
     char command[512];
     
    
@@ -162,9 +156,19 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
-    printf("✓ Programa compilado exitosamente: %s\n", base_name);
-    
-    
+    printf("Programa compilado exitosamente: %s\n", base_name);
+
+
+    printf("\n=== EJECUTANDO PROGRAMA ===\n");
+    printf("Salida del programa:\n");
+    printf("---------------------\n");
+
+    snprintf(command, sizeof(command), "./%s", base_name);
+    int program_result = system(command);
+
+    printf("---------------------\n");
+    printf("Programa terminó con código: %d\n", program_result);
+
     snprintf(command, sizeof(command), "rm %s.o", base_name);
     int cleanup_result = system(command);
     (void)cleanup_result; 
